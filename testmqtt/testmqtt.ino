@@ -15,7 +15,9 @@ int buzzerPin = D1;
 int pirState = LOW;
 int val = 0; 
 int currentValue = 0;
-String isActive = "false"; 
+
+String isSensorActive = "false"; 
+String isBuzzerActive = "false";
  
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -52,9 +54,14 @@ void setup() {
  
     }
   }
- 
-  client.publish("detection", "Bonjour c'est un mesage de test"); //Topic name
-  client.subscribe("detection");
+
+  // Pou le capteur
+  client.publish("sensor", "Capteur ok"); //Topic name
+  client.subscribe("sensor");
+
+  // Pour le buzzer
+  client.publish("alarm", "Buzzer ok"); //Topic name
+  client.subscribe("alarm");
  
 }
  
@@ -63,18 +70,38 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived in topic: ");
   Serial.println(topic);
 
-  String temp = "";
- 
-  Serial.print("Message:");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
-    temp += (char)payload[i];
-  }
+  if(strcmp(topic, "sensor") == 0){
+    String temp = "";
+    Serial.print("Message:");
+  
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+      temp += (char)payload[i];
+    }
 
-  Serial.println(temp);
-  Serial.println(isActive);
-  if(temp == "true" || temp == "false"){
-      isActive = temp;
+    if(temp == "true" || temp == "false"){
+      isSensorActive = temp;
+      if(temp == "false"){
+        isBuzzerActive = temp;
+        val = 0;
+      }
+    }
+  }
+  else if(strcmp(topic, "alarm") == 0){
+    String temp = "";
+    Serial.print("Message:");
+  
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+      temp += (char)payload[i];
+    }
+
+    if(temp == "true" || temp == "false"){
+      isBuzzerActive = temp;
+      if(temp == "false"){
+        isSensorActive = "true";
+      }
+    }
   }
  
   Serial.println();
@@ -84,15 +111,38 @@ void callback(char* topic, byte* payload, unsigned int length) {
  
 void loop() {
   client.loop();
-  if(client.connected() && isActive == "true"){
-     val = digitalRead(inputPin);
-     if(val != currentValue){
-      currentValue = val;
-       client.publish("detection", (val ? "Allumé" : "Éteint"));
-     }
-     delay(400);
+
+  if(client.connected()){
+    if(isSensorActive == "true"){
+      val = digitalRead(inputPin);
+      Serial.println(val);
+      if(val != currentValue){
+        currentValue = val;
+        client.publish("motion", (val ? "true" : "false"));
+        Serial.println(val ? "true" : "false");
+
+        if(val == 1){
+          isBuzzerActive = "true";
+        }
+      }
+      delay(400);
+    }
+    if(isBuzzerActive == "true"){
+      isSensorActive = "false";
+      val = 0;
+      playMusic();
+    }
   }
-    if(isActive == "true"){
+}
+
+void playMusic(){
+  tone(buzzerPin,500,100);
+  delay(20);
+  tone(buzzerPin,600,100);
+  delay(150);
+};
+
+void playMusicMario(){
       tone(buzzerPin,660,100);
       delay(150);
       tone(buzzerPin,660,100);
@@ -142,5 +192,4 @@ void loop() {
       delay(150);
       tone(buzzerPin,480,80);
       delay(500);
-    }
-}
+};
