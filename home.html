@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>Control IOT</title>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+
+<script>
+
+
+function turnoff(){
+  // Create a request variable and assign a new XMLHttpRequest object to it.
+  var request = new XMLHttpRequest()
+  // Open a new connection, using the GET request on the URL endpoint
+  request.open('GET', "http://192.168.43.172:1880/turnoff")
+  // Send request
+  request.send()
+  location.reload();
+}
+
+function deactivate(){
+  // Create a request variable and assign a new XMLHttpRequest object to it.
+  var request = new XMLHttpRequest()
+  // Open a new connection, using the GET request on the URL endpoint
+  request.open('GET', "http://192.168.43.172:1880/activate?status=false")
+  // Send request
+  request.send()
+  location.reload();
+}
+
+function activate(){
+  // Create a request variable and assign a new XMLHttpRequest object to it.
+  var request = new XMLHttpRequest()
+  // Open a new connection, using the GET request on the URL endpoint
+  request.open('GET', "http://192.168.43.172:1880/activate?status=true")
+  // Send request
+  request.send()
+  location.reload();
+
+  location.reload();
+}
+</script>
+<body>
+<h1>Control IOT webapp</h1>
+
+<button onclick="turnoff()">Turn off alarm</button>
+<button onclick="deactivate()">Deactivate motion capture</button>
+<button onclick="activate()">Activate motion capture</button>
+</body>
+<hr>
+<div id=pubmsg></div>
+</html>
