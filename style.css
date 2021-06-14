@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 50px;
+  font-family: "Open Sans", sans-serif;
+}
+
+button {
+  border: none;
+  font-family: "Open Sans", sans-serif;
+  font-size: 16px;
+  /* haut | droit | bas | gauche */
+  padding: 10px 20px;
+  background: rgb(240, 240, 240);
+  color: black;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+button:hover {
+  cursor: pointer;
+  transform: scale(0.99);
+}
+
+button:active {
+  transform: scale(0.98);
+}
